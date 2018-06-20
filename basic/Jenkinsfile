@@ -1,0 +1,131 @@
+pipeline {
+  agent {
+      label 'maven'
+  }
+  stages {
+    stage('Create Build') {
+      when {
+        expression {
+          openshift.withCluster() {
+	    openshift.withProject(params.DESINT_PROJECT) {
+              return !openshift.selector("bc", params.APP_NAME).exists();
+            }
+          }
+        }
+      }
+      steps {
+        script {
+          openshift.withCluster() {
+	    openshift.withProject(params.DESINT_PROJECT) {
+              openshift.newBuild("--name=${params.APP_NAME}", "--image-stream=${params.BASE_IMAGE}", "--binary")
+            }
+          }
+        }
+      }
+    }
+    stage('Build Image') {
+      steps {
+        script {
+          openshift.withCluster() {
+	    openshift.withProject(params.DESINT_PROJECT) {
+              openshift.selector("bc", params.APP_NAME).startBuild("--from-file=${params.APPLICATION_BINARY_URL}", "--wait")
+            }
+          }
+        }
+      }
+    }
+    stage('Promote to DES-INT') {
+      steps {
+        script {
+          openshift.withCluster() {
+	    openshift.withProject(params.DESINT_PROJECT) {
+              openshift.tag("${params.APP_NAME}:latest", "${params.APP_NAME}:desint")
+            }
+          }
+        }
+      }
+    }
+    stage('Deploy in DES-INT') {
+      when {
+        expression {
+          openshift.withCluster() {
+	    openshift.withProject(params.DESINT_PROJECT) {
+              return !openshift.selector('dc', params.APP_NAME).exists()
+            }
+          }
+        }
+      }
+      steps {
+        script {
+          openshift.withCluster() {
+	    openshift.withProject(params.DESINT_PROJECT) {
+              openshift.newApp("${params.APP_NAME}:desint", "--name=${params.APP_NAME}").narrow('svc').expose()
+            }
+          }
+        }
+      }
+    }
+    stage('Promote to PRE') {
+      steps {
+        script {
+          openshift.withCluster() {
+	    openshift.withProject(params.DESINT_PROJECT) {
+              openshift.tag("${params.APP_NAME}:desint", "${params.APP_NAME}:pre")
+            }
+          }
+        }
+      }
+    }
+    stage('Deploy in PRE') {
+      when {
+        expression {
+          openshift.withCluster() {
+	    openshift.withProject(params.PRE_PROJECT) {
+              return !openshift.selector('dc', params.APP_NAME).exists()
+            }
+          }
+        }
+      }
+      steps {
+        script {
+          openshift.withCluster() {
+	    openshift.withProject(params.PRE_PROJECT) {
+              openshift.newApp("${params.APP_NAME}:pre", "--name=${params.APP_NAME}").narrow('svc').expose()
+            }
+          }
+        }
+      }
+    }
+    stage('Promote to EXP') {
+      steps {
+        script {
+          openshift.withCluster() {
+	    openshift.withProject(params.DESINT_PROJECT) {
+              openshift.tag("${params.APP_NAME}:pre", "${params.APP_NAME}:exp")
+            }
+          }
+        }
+      }
+    }
+    stage('Deploy in PRE') {
+      when {
+        expression {
+          openshift.withCluster() {
+	    openshift.withProject(params.EXP_PROJECT) {
+              return !openshift.selector('dc', params.APP_NAME).exists()
+            }
+          }
+        }
+      }
+      steps {
+        script {
+          openshift.withCluster() {
+	    openshift.withProject(params.EXP_PROJECT) {
+              openshift.newApp("${params.APP_NAME}:exp", "--name=${params.APP_NAME}").narrow('svc').expose()
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,64 @@
+apiVersion: v1
+kind: Template
+metadata:
+  creationTimestamp: null
+  name: bc-basic-pipeline
+objects:
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    creationTimestamp: null
+    name: ${APP_NAME}-pipeline
+  spec:
+    nodeSelector: {}
+    output: {}
+    postCommit: {}
+    resources: {}
+    runPolicy: Serial
+    source:
+      git:
+        ref: master
+        uri: https://github.com/dsanchor/gc-pipelines
+      type: Git
+    strategy:
+      jenkinsPipelineStrategy:
+        env:
+        - name: APP_NAME
+          value: ${APP_NAME}
+        - name: DESINT_PROJECT
+          value: ${DESINT_PROJECT}
+        - name: PRE_PROJECT
+          value: ${PRE_PROJECT}
+        - name: EXP_PROJECT
+          value: ${EXP_PROJECT}
+        - name: APPLICATION_BINARY_URL
+          value: ${APPLICATION_BINARY_URL}
+        - name: BASE_IMAGE
+          value: ${BASE_IMAGE}
+        jenkinsfilePath: basic/Jenkinsfile
+      type: JenkinsPipeline
+parameters:
+- name: APP_NAME
+  displayname: Application Name
+  description: Application Name
+  required: true
+- name: DESINT_PROJECT
+  displayname: Des-Int project
+  description: Des-Int project
+  required: true
+- name: PRE_PROJECT
+  displayname: Pre project
+  description: Pre project
+  required: true
+- name: EXP_PROJECT
+  displayname: Exp project
+  description: Exp project
+  required: true
+- name: APPLICATION_BINARY_URL
+  displayname: Application binary url
+  description: Application binary url
+  required: true
+- name: BASE_IMAGE
+  displayname: Base image
+  description: Base image
+  required: true
