@@ -107,7 +107,7 @@ pipeline {
         }
       }
     }
-    stage('Deploy in PRE') {
+    stage('Deploy in EXP') {
       when {
         expression {
           openshift.withCluster() {
