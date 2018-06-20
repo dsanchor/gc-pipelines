@@ -90,7 +90,7 @@ pipeline {
         script {
           openshift.withCluster() {
 	    openshift.withProject(params.PRE_PROJECT) {
-              openshift.newApp("${params.APP_NAME}:pre", "--name=${params.APP_NAME}").narrow('svc').expose()
+              openshift.newApp("${params.DESINT_PROJECT}/${params.APP_NAME}:pre", "--name=${params.APP_NAME}").narrow('svc').expose()
             }
           }
         }
@@ -121,7 +121,7 @@ pipeline {
         script {
           openshift.withCluster() {
 	    openshift.withProject(params.EXP_PROJECT) {
-              openshift.newApp("${params.APP_NAME}:exp", "--name=${params.APP_NAME}").narrow('svc').expose()
+              openshift.newApp("${params.DESINT_PROJECT}/${params.APP_NAME}:exp", "--name=${params.APP_NAME}").narrow('svc').expose()
             }
           }
         }
