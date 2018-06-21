@@ -39,4 +39,11 @@ def rollout(appName) {
    echo "New deployment ready"
 }
 
+def mountConfiguration(path, name) {
+   echo "Creating configuration mount volumes for application ${name}"
+   dc.volume("--overwrite", "--add", "-t", "configmap", "-m", "${path}/sistemas-global", "--name", "sistemas-global-config", "--configmap-name", "sistemas-global")
+   dc.volume("--overwrite", "--add", "-t", "configmap", "-m", "${path}/sistemas-${name}", "--name", "sistemas-${name}-config", "--configmap-name", "sistemas-${name}")
+   dc.volume("--overwrite", "--add", "-t", "configmap", "-m", "${path}/${name}", "--name", "${name}-config", "--configmap-name", name)
+}
+
 return this

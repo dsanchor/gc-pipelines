@@ -99,6 +99,9 @@ pipeline {
               openshift.set("triggers", "dc/${params.APP_NAME}", "--remove-all")
 	      // FIXME extract as parameter
               openshift.set("resources", "dc/${params.APP_NAME}", "--limits", "cpu=400m,memory=1024Mi", "--requests", "cpu=200m,memory=512Mi")
+              def dc = openshift.selector('dc', params.APP_NAME)
+	      // FIXME extract as parameter /opt/eap/standalone/configuration
+              pipelineUtils.mountConfiguration("/opt/eap/standalone/configuration", params.APP_NAME)
             }
           }
         }
