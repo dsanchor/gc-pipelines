@@ -1,10 +1,10 @@
+def pipelineUtils = load 'common-functions/pipeline-utils.groovy'
+
 pipeline {
   agent {
       label 'maven'
   }
   stages {
-
-    def pipelineUtils = load 'common-functions/pipeline-utils.groovy'
 
     stage('Create Build') {
       when {
