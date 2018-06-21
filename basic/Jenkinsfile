@@ -112,7 +112,7 @@ pipeline {
         script {
           openshift.withCluster() {
 	    openshift.withProject(params.DESINT_PROJECT) {
-              pipelineUtils.deploy(params.APP_NAME)
+              pipelineUtils.rollout(params.APP_NAME)
             }
           }
         }
