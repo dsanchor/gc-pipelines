@@ -1,11 +1,11 @@
 pipeline {
-
-  pipelineUtils = load 'common-functions/pipeline-utils.groovy'
-
   agent {
       label 'maven'
   }
   stages {
+
+    pipelineUtils = load 'common-functions/pipeline-utils.groovy'
+
     stage('Create Build') {
       when {
         expression {
