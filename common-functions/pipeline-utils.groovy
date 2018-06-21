@@ -9,4 +9,34 @@ def createConfigMap(name, pathToFiles) {
    openshift.selector( "configmap/${name}-tmp" ).delete()	
 }
 
+def rollout(appName) {
+   echo "Deploying application ${appName}"
+   def dc = openshift.selector("dc", appName)
+
+   def replicas = dc.object().spec.replicas
+   def currentPods = dc.related('pods').count()
+
+   def rm = dc.rollout() 
+   def lastDeploy = rm.latest()
+   echo "${lastDeploy.out}"
+    
+   dc.related( 'pods' ).watch {
+     // End the watch only when rolling new pods
+     echo "Total number of current pods are ${it.count()} while old ones were ${currentPods}"
+     return it.count() > currentPods 
+   }
+   echo "Rolling out deployment"
+   dc.related( 'pods' ).watch {
+     // End the watch only once the exact number of replicas is back
+     echo "New pods are ${it.count()} and should match ${replicas}"
+     return it.count() == replicas 
+   }
+   // Let's wait until pods are Running
+   dc.related( 'pods' ).untilEach {
+     echo "Pod ${it.object().metadata.name} is ${it.object().status.phase}"
+     return it.object().status.phase == 'Running'
+   }
+   echo "New deployment ready"
+}
+
 return this
