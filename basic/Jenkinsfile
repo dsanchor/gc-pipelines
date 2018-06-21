@@ -7,7 +7,7 @@ pipeline {
     stage('Init pipeline') {
       steps {
         script {
-           def pipelineUtils = load 'common-functions/pipeline-utils.groovy'
+           pipelineUtils = load 'common-functions/pipeline-utils.groovy'
 	   // FIXME extract as parameter
            dir('config') {
              git 'https://github.com/dsanchor/gc-config.git'
