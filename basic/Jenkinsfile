@@ -1,7 +1,6 @@
 pipeline {
   agent {
       label 'maven'
-      def pipelineUtils = load 'common-functions/pipeline-utils.groovy'
   }
   stages {
 
@@ -17,6 +16,7 @@ pipeline {
       }
       steps {
         script {
+          def pipelineUtils = load 'common-functions/pipeline-utils.groovy'
           openshift.withCluster() {
 	    openshift.withProject(params.DESINT_PROJECT) {
               openshift.newBuild("--name=${params.APP_NAME}", "--image-stream=${params.BASE_IMAGE}", "--binary")
