@@ -4,7 +4,7 @@ pipeline {
   }
   stages {
 
-    pipelineUtils = load 'common-functions/pipeline-utils.groovy'
+    def pipelineUtils = load 'common-functions/pipeline-utils.groovy'
 
     stage('Create Build') {
       when {
