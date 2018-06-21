@@ -1,4 +1,7 @@
 pipeline {
+
+  pipelineUtils = load 'common-functions/pipeline-utils.groovy'
+
   agent {
       label 'maven'
   }
