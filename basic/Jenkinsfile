@@ -4,6 +4,22 @@ pipeline {
   }
   stages {
 
+    stage('Init pipeline') {
+      steps {
+        script {
+           def pipelineUtils = load 'common-functions/pipeline-utils.groovy'
+	   // FIXME extract as parameter
+           dir('config') {
+             git 'https://github.com/dsanchor/gc-config.git'
+           }
+           dir('app') {
+             git 'https://github.com/dsanchor/zapolo.git'
+           }
+
+        }
+      }
+    }
+
     stage('Create Build') {
       when {
         expression {
@@ -16,7 +32,6 @@ pipeline {
       }
       steps {
         script {
-          def pipelineUtils = load 'common-functions/pipeline-utils.groovy'
           openshift.withCluster() {
 	    openshift.withProject(params.DESINT_PROJECT) {
               openshift.newBuild("--name=${params.APP_NAME}", "--image-stream=${params.BASE_IMAGE}", "--binary")
