@@ -62,6 +62,24 @@ pipeline {
         }
       }
     }
+    stage('Configure DES-INT') {
+      // always
+      steps {
+        script {
+          openshift.withCluster() {
+	    openshift.withProject(params.DESINT_PROJECT) {
+              dir('config') {
+                pipelineUtils.createConfigMap(sistemas-global, "openshift/global/des-int")
+                pipelineUtils.createConfigMap(sistemas-${params.APP_NAME}, "openshift/apps/${params.APP_NAME}/des-int")
+              }	      
+              dir('app') {
+                pipelineUtils.createConfigMap(${params.APP_NAME}, "openshift/des-int")
+              }	
+            }
+          }
+        }
+      }
+    }
     stage('Deploy in DES-INT') {
       when {
         expression {
